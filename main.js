@@ -1,54 +1,63 @@
+function normalizeBaseUrl(base) {
+  if (!base) return "";
+  return base
+    .trim()
+    // срежем случайно дописанные /leaderboard или /api/leaderboard
+    .replace(/\/(leaderboard|api\/leaderboard)\/?$/i, "")
+    // и хвостовые слеши
+    .replace(/\/+$/, "");
+}
+
 async function fetchLeaderboard() {
   const statusEl = document.getElementById("updateStatus");
   const tableBody = document.querySelector("#leaderboardTable tbody");
 
-  if (!window.BACKEND_BASE_URL) {
-    console.error("BACKEND_BASE_URL is not defined");
-    if (statusEl) statusEl.textContent = "BACKEND_BASE_URL is not defined";
+  if (!statusEl || !tableBody) {
+    console.error("Нет нужных элементов на странице");
     return;
   }
 
-  const url = `${window.BACKEND_BASE_URL}/leaderboard`;
-  console.log("Fetching leaderboard from:", url);
+  const base = normalizeBaseUrl(window.BACKEND_BASE_URL || "");
+  if (!base) {
+    statusEl.textContent = "BACKEND_BASE_URL не задан";
+    console.error("BACKEND_BASE_URL не задан");
+    return;
+  }
 
-  if (statusEl) statusEl.textContent = "Loading...";
+  const url = `${base}/leaderboard`;
+  console.log("fetchLeaderboard → URL:", url);
+
+  statusEl.textContent = "Loading...";
 
   try {
-    const res = await fetch(url);
-
-    console.log("Response status:", res.status, res.statusText);
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status} ${res.statusText}`);
-    }
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    console.log("fetchLeaderboard → status:", res.status, res.statusText);
 
     const contentType = res.headers.get("content-type") || "";
     const text = await res.text();
 
-    if (!contentType.includes("application/json")) {
-      console.error("Unexpected content-type:", contentType);
-      console.error("Response starts with:", text.slice(0, 200));
-      throw new Error("Backend returned non-JSON response");
+    console.log("fetchLeaderboard → content-type:", contentType);
+    console.log("fetchLeaderboard → body preview:", text.slice(0, 200));
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} ${res.statusText}`);
     }
 
     let data;
     try {
       data = JSON.parse(text);
     } catch (e) {
-      console.error("JSON parse error:", e);
-      console.error("Raw text:", text.slice(0, 200));
-      throw new Error("Failed to parse JSON from backend");
+      throw new Error("Ответ бэкенда не JSON, см. превью выше");
     }
 
     if (!Array.isArray(data)) {
-      console.error("Unexpected data format:", data);
-      throw new Error("Backend returned non-array JSON");
+      throw new Error("Неверный формат данных: ожидается массив");
     }
 
     tableBody.innerHTML = "";
 
     if (data.length === 0) {
-      if (statusEl) statusEl.textContent = "No participants yet";
+      statusEl.textContent = "No participants yet";
       return;
     }
 
@@ -125,20 +134,22 @@ async function fetchLeaderboard() {
       }
 
       tr.appendChild(flagsTd);
-
       tableBody.appendChild(tr);
     });
 
     const now = new Date();
-    if (statusEl) statusEl.textContent = `Updated at ${now.toLocaleTimeString()}`;
+    statusEl.textContent = `Updated at ${now.toLocaleTimeString()}`;
   } catch (e) {
     console.error("fetchLeaderboard error:", e);
-    if (statusEl) statusEl.textContent = "Error loading leaderboard";
+    statusEl.textContent = "Error loading leaderboard";
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("main.js loaded, BACKEND_BASE_URL =", window.BACKEND_BASE_URL);
+  console.log(
+    "main.js loaded, normalized base =",
+    normalizeBaseUrl(window.BACKEND_BASE_URL || "")
+  );
   fetchLeaderboard();
   setInterval(fetchLeaderboard, 60000);
 });
