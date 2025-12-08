@@ -17,7 +17,7 @@
         </div>
       </div>
       <p class="subtitle">
-        Leaderboard обновляется на основе ончейн-данных Polymarket. Портфель = стоимость открытых позиций + баланс.
+        Leaderboard обновляется на основе ончейн-данных Polymarket. Портфель = баланс + стоимость открытых позиций.
       </p>
     </header>
 
@@ -53,7 +53,7 @@
               </tr>
             </thead>
             <tbody>
-              <!-- строки подставит main.js -->
+              <!-- сюда main.js вставит строки -->
             </tbody>
           </table>
         </div>
@@ -61,9 +61,10 @@
     </main>
   </div>
 
-  <!-- ВАЖНО: только базовый URL, без /leaderboard и /api -->
+  <!-- ВАЖНО: только база ngrok, без /leaderboard -->
   <script>
-    const BACKEND_BASE_URL = "https://bivalvular-joi-stagily.ngrok-free.dev";
+    window.BACKEND_BASE_URL = "https://bivalvular-joi-stagily.ngrok-free.dev";
+    console.log("BACKEND_BASE_URL =", window.BACKEND_BASE_URL);
   </script>
   <script src="main.js"></script>
 </body>
