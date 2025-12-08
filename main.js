@@ -2,9 +2,9 @@ function normalizeBaseUrl(base) {
   if (!base) return "";
   return base
     .trim()
-    // срежем случайно дописанные /leaderboard или /api/leaderboard
+    // убираем случайно дописанные /leaderboard или /api/leaderboard
     .replace(/\/(leaderboard|api\/leaderboard)\/?$/i, "")
-    // и хвостовые слеши
+    // убираем хвостовые слеши
     .replace(/\/+$/, "");
 }
 
@@ -30,7 +30,15 @@ async function fetchLeaderboard() {
   statusEl.textContent = "Loading...";
 
   try {
-    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    const res = await fetch(url, {
+      headers: {
+        // говорим, что ждём JSON
+        "Accept": "application/json",
+        // говорим ngrok не показывать HTML-страницу-предупреждение
+        "ngrok-skip-browser-warning": "1",
+      },
+    });
+
     console.log("fetchLeaderboard → status:", res.status, res.statusText);
 
     const contentType = res.headers.get("content-type") || "";
