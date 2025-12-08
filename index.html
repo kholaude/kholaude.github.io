@@ -12,7 +12,7 @@
       <div class="header-top">
         <h1 class="title">Polymarket Trading Tournament</h1>
         <div class="bonus-badge">
-          <span class="bonus-label">Top 5</span>
+          <span class="bonus-label">Top 5 Places</span>
           <span class="bonus-value">$100</span>
         </div>
       </div>
@@ -53,7 +53,7 @@
               </tr>
             </thead>
             <tbody>
-              <!-- сюда main.js вставит строки -->
+              <!-- строки подставит main.js -->
             </tbody>
           </table>
         </div>
@@ -61,8 +61,8 @@
     </main>
   </div>
 
-  <!-- ВАЖНО: только база ngrok, без /leaderboard -->
   <script>
+    // ВАЖНО: тут только база ngrok, БЕЗ /leaderboard и без /api/...
     window.BACKEND_BASE_URL = "https://bivalvular-joi-stagily.ngrok-free.dev";
     console.log("BACKEND_BASE_URL =", window.BACKEND_BASE_URL);
   </script>
